@@ -10,7 +10,7 @@ android {
         applicationId "org.klava.sudaku"
         minSdkVersion 15
         targetSdkVersion 28
-        versionCode 8
+        versionCode 9
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         setProperty("archivesBaseName", "$applicationId")
