@@ -9,6 +9,7 @@ import android.widget.CompoundButton.OnCheckedChangeListener
 import android.widget.SeekBar
 import android.widget.Switch
 import android.widget.TextView
+import kotlinx.android.synthetic.main.activity_test.*
 
 class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnCheckedChangeListener {
 
@@ -21,24 +22,19 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
 
         prefsManager = PreferenceManager.getDefaultSharedPreferences(this)
 
-        findViewById<SeekBar>(R.id.alignment).apply {
-            progress = prefsManager.getInt("sudaku_grid_alignment", 1)
-            setOnSeekBarChangeListener(this@TestActivity)
-        }
+        alignment.setOnSeekBarChangeListener(this)
+        alignment.progress = prefsManager.getInt("sudaku_grid_alignment", 1)
 
-        findViewById<SeekBar>(R.id.fontSizeBar).apply {
-            progress = prefsManager.getInt("sudaku_font_size", 16) - 10
-            setOnSeekBarChangeListener(this@TestActivity)
-        }
+        fontSizeBar.progress = prefsManager.getInt("sudaku_font_size", 16) - 10
+        fontSizeBar.setOnSeekBarChangeListener(this)
 
-        fontTextView = findViewById<TextView>(R.id.fontSize).apply {
-            text = prefsManager.getInt("sudaku_font_size", 16).toString()
-        }
+        fontSize.text = prefsManager.getInt("sudaku_font_size", 16).toString()
 
-        findViewById<Switch>(R.id.extraTolerance).apply {
-            isChecked = prefsManager.getBoolean("sudaku_extra_tolerance", false)
-            setOnCheckedChangeListener(this@TestActivity)
-        }
+        extraTolerance.isChecked = prefsManager.getBoolean("sudaku_extra_tolerance", false)
+        extraTolerance.setOnCheckedChangeListener(this)
+
+        useCenterDetection.isChecked = prefsManager.getBoolean("sudaku_use_center_detection", false)
+        useCenterDetection.setOnCheckedChangeListener(this)
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -62,7 +58,11 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
     }
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
-        prefsManager.edit().putBoolean("sudaku_extra_tolerance", isChecked).commit()
+        when (buttonView!!.id) {
+            R.id.extraTolerance -> prefsManager.edit().putBoolean("sudaku_extra_tolerance", isChecked).commit()
+            R.id.useCenterDetection -> prefsManager.edit().putBoolean("sudaku_use_center_detection", isChecked).commit()
+        }
+
     }
 
 }
