@@ -31,8 +31,10 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
     private val fatGridLine = 3
     private var textOffset = 0f
     private val cursorThreshold = 2 * density
+    private var useCenterDetection = false
 
     private var tolerantZones: Array<Int>
+    private var centerZones = arrayOf(10, 13, 16, 37, 40, 43, 64, 67, 70)
 
     private var startZone: Int? = null
     private var currentZone: Int? = null
@@ -59,6 +61,7 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         val prefsManager = PreferenceManager.getDefaultSharedPreferences(this.context)
         fontSize = prefsManager.getInt("sudaku_font_size", 16)
         gridAlignment = prefsManager.getInt("sudaku_grid_alignment", 1)
+        useCenterDetection = prefsManager.getBoolean("sudaku_use_center_detection", false)
         tolerantZones = if (prefsManager.getBoolean("sudaku_extra_tolerance", false))
             arrayOf(12, 14, 28, 34, 46, 52, 66, 68, 21, 23, 29, 33, 47, 51, 57, 59)
         else
@@ -298,14 +301,18 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         val z3 = (localX / zoneSize).toInt() + (3 * (localY / zoneSize).toInt())
         val z9 = (localX / cellSize).toInt() + (9 * (localY / cellSize).toInt())
 
-        return if (expandCorners && z9 in tolerantZones)
-            currentZone ?: startZone else z3
+        return if (useCenterDetection && z9 in centerZones) z3
+               else if (useCenterDetection) currentZone ?: startZone
+               else if (expandCorners && z9 in tolerantZones)
+                    currentZone ?: startZone
+               else z3
     }
 
     override fun onSharedPreferenceChanged(sharedPreferences: SharedPreferences?, key: String?) {
         sharedPreferences?.let {
             fontSize = it.getInt("sudaku_font_size", 16)
             gridAlignment = it.getInt("sudaku_grid_alignment", 1)
+            useCenterDetection = it.getBoolean("sudaku_use_center_detection", false)
             tolerantZones = if (it.getBoolean("sudaku_extra_tolerance", false))
                 arrayOf(12, 14, 28, 34, 46, 52, 66, 68, 21, 23, 29, 33, 47, 51, 57, 59)
             else
