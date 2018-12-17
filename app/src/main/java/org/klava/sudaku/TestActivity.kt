@@ -48,10 +48,10 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
     override fun onProgressChanged(seekBar: SeekBar?, progress: Int, fromUser: Boolean) {
         when (seekBar!!.id) {
             R.id.alignment -> {
-                prefsManager.edit().putInt("sudaku_grid_alignment", seekBar.progress).commit()
+                prefsManager.edit().putInt("sudaku_grid_alignment", seekBar.progress).apply()
             }
             R.id.fontSizeBar -> {
-                prefsManager.edit().putInt("sudaku_font_size", seekBar.progress + 10).commit()
+                prefsManager.edit().putInt("sudaku_font_size", seekBar.progress + 10).apply()
                 fontTextView.text = (seekBar.progress + 10).toString()
             }
         }
@@ -59,8 +59,8 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
 
     override fun onCheckedChanged(buttonView: CompoundButton?, isChecked: Boolean) {
         when (buttonView!!.id) {
-            R.id.extraTolerance -> prefsManager.edit().putBoolean("sudaku_extra_tolerance", isChecked).commit()
-            R.id.useCenterDetection -> prefsManager.edit().putBoolean("sudaku_use_center_detection", isChecked).commit()
+            R.id.extraTolerance -> prefsManager.edit().putBoolean("sudaku_extra_tolerance", isChecked).apply()
+            R.id.useCenterDetection -> prefsManager.edit().putBoolean("sudaku_use_center_detection", isChecked).apply()
         }
 
     }

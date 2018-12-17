@@ -292,7 +292,7 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         return Point(x-1, y)
     }
 
-    private fun RectF.getZone(x: Float, y: Float, expandCorners: Boolean = false): Int? {
+    private fun RectF.getZone(x: Float, y: Float, isMoving: Boolean = false): Int? {
         if (x !in left..right || y !in top..bottom) return null
 
         val localX = x - this.left
@@ -301,10 +301,14 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         val z3 = (localX / zoneSize).toInt() + (3 * (localY / zoneSize).toInt())
         val z9 = (localX / cellSize).toInt() + (9 * (localY / cellSize).toInt())
 
-        return if (useCenterDetection && z9 in centerZones) z3
-               else if (useCenterDetection) currentZone ?: startZone
-               else if (expandCorners && z9 in tolerantZones)
-                    currentZone ?: startZone
+//        return if (useCenterDetection && z9 in centerZones && isMoving) z3
+//               else if (useCenterDetection && !isMoving) z3
+//               else if (isMoving && z9 in tolerantZones)
+//                    currentZone ?: startZone
+//               else z3
+        return if (!isMoving) z3
+               else if (useCenterDetection && z9 in centerZones) z3
+               else if (useCenterDetection || (z9 in tolerantZones)) currentZone ?: startZone
                else z3
     }
 
