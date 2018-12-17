@@ -63,7 +63,7 @@
             app:layout_constraintBaseline_toBaselineOf="@+id/textView2" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp"/>
     <TextView
-            android:text="Использовать увеличенные допуски"
+            android:text="Использовать увеличенные допуски для углов"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/tv123" android:layout_marginStart="8dp"
@@ -78,7 +78,7 @@
             app:layout_constraintStart_toEndOf="@+id/tv123" android:layout_marginLeft="8dp"
             android:layout_marginStart="8dp" android:textOn="Да" android:textOff="Нет"/>
     <TextView
-            android:text="Свайп через центр"
+            android:text="Непрерывный ввод по точкам"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/textView3" android:layout_marginTop="16dp"
