@@ -63,9 +63,16 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         gridAlignment = prefsManager.getInt("sudaku_grid_alignment", 1)
         useCenterDetection = prefsManager.getBoolean("sudaku_use_center_detection", false)
         tolerantZones = if (prefsManager.getBoolean("sudaku_extra_tolerance", false))
-            arrayOf(12, 14, 28, 34, 46, 52, 66, 68, 21, 23, 29, 33, 47, 51, 57, 59)
+            expandedTolerantZones
         else
-            arrayOf(21, 23, 29, 33, 47, 51, 57, 59)
+            normalTolerantZones
+
+        centerZones = when (prefsManager.getInt("sudaku_touch_zones_variant", 0)) {
+            0 -> rectTouchZones
+            1 -> rombTouchZones
+            2 -> circleTouchZones
+            else -> rectTouchZones
+        }
 
         prefsManager.registerOnSharedPreferenceChangeListener(this)
     }
@@ -151,11 +158,11 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
             }
 
             val zIndex = zoneIndex + 1
-            val (zx, zy) = splitCoords(zIndex)
+            val (zx, zy) = splitCoords3(zIndex)
             arrayOfKeys.forEachIndexed { keyIndex, key ->
                 if (key != null) {
                     val i = keyIndex + 1
-                    val (x, y) = splitCoords(i)
+                    val (x, y) = splitCoords3(i)
                     canvas.drawText(key.label,
                         gridRect.left + zoneSize * zx + cellSize * x + halfCellSize,
                         gridRect.top + zoneSize * zy + cellSize * y + halfCellSize + textOffset,
@@ -169,7 +176,7 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
 
             layout.getKeys(startZone!!, shiftState.value).forEachIndexed { index, key ->
                 key?.let {
-                    val (x, y) = splitCoords(index + 1)
+                    val (x, y) = splitCoords3(index + 1)
                     canvas.drawText(key.label,
                         gridRect.left + zoneSize * x + cellSize * 1.5f,
                         gridRect.top + zoneSize * y + cellSize * 1.5f + textOffset,
@@ -187,9 +194,26 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         canvas.drawRect(gridRect, fillPaint)
     }
 
+    private fun drawZones(canvas: Canvas) {
+        if (useCenterDetection) {
+            fillPaint.color = Color.LTGRAY
+            centerZones.forEach {
+                val (x, y) = splitCoords9(it)
+                canvas.drawRect(
+                    gridRect.left + x * cellSize,
+                    gridRect.top + y * cellSize,
+                    gridRect.left + (x+1) * cellSize,
+                    gridRect.top + (y+1) * cellSize,
+                    fillPaint
+                )
+            }
+        }
+    }
+
     override fun onDraw(canvas: Canvas?) {
         canvas?.let {
             drawBg(it)
+            drawZones(it)
             drawGrid(it)
             if (!isCursorMode) drawLabels(it)
         }
@@ -285,11 +309,18 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
         invalidate()
     }
 
-    private fun splitCoords(index: Int): Point {
+    private fun splitCoords3(index: Int): Point {
         val mod = index % 3
         val x = if (mod == 0) 3 else mod
         val y = (index - 1) / 3
         return Point(x-1, y)
+    }
+
+    private fun splitCoords9(index: Int): Point {
+        if (index == 36) return Point(0, 4)
+        val x = index % 9
+        val y = (index - 1) / 9
+        return Point(x, y)
     }
 
     private fun RectF.getZone(x: Float, y: Float, isMoving: Boolean = false): Int? {
@@ -313,9 +344,16 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
             gridAlignment = it.getInt("sudaku_grid_alignment", 1)
             useCenterDetection = it.getBoolean("sudaku_use_center_detection", false)
             tolerantZones = if (it.getBoolean("sudaku_extra_tolerance", false))
-                arrayOf(12, 14, 28, 34, 46, 52, 66, 68, 21, 23, 29, 33, 47, 51, 57, 59)
+                expandedTolerantZones
             else
-                arrayOf(21, 23, 29, 33, 47, 51, 57, 59)
+                normalTolerantZones
+
+            centerZones = when (it.getInt("sudaku_touch_zones_variant", 0)) {
+                0 -> rectTouchZones
+                1 -> rombTouchZones
+                2 -> circleTouchZones
+                else -> rectTouchZones
+            }
 
             requestLayout()
             invalidate()
@@ -325,3 +363,8 @@ class InputView(context: Context) : View(context), SharedPreferences.OnSharedPre
 
 private data class Point(val x: Int, val y: Int)
 
+private val normalTolerantZones = arrayOf(21, 23, 29, 33, 47, 51, 57, 59)
+private val expandedTolerantZones = arrayOf(12, 14, 28, 34, 46, 52, 66, 68, 21, 23, 29, 33, 47, 51, 57, 59)
+private val rectTouchZones = arrayOf(10, 13, 16, 37, 40, 43, 64, 67, 70)
+private val rombTouchZones = arrayOf(20, 4, 24, 36, 40, 44, 56, 76, 60)
+private val circleTouchZones = arrayOf(20, 13, 24, 37, 40, 43, 56, 67, 60)

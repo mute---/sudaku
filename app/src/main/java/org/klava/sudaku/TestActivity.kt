@@ -4,15 +4,12 @@ import android.content.SharedPreferences
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.preference.PreferenceManager
-import android.widget.CompoundButton
+import android.view.View
+import android.widget.*
 import android.widget.CompoundButton.OnCheckedChangeListener
-import android.widget.SeekBar
-import android.widget.Switch
-import android.widget.TextView
 import kotlinx.android.synthetic.main.activity_test.*
 
-class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnCheckedChangeListener {
-
+class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnCheckedChangeListener, AdapterView.OnItemSelectedListener {
     private lateinit var prefsManager: SharedPreferences
     private lateinit var fontTextView: TextView
 
@@ -35,6 +32,14 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
 
         useCenterDetection.isChecked = prefsManager.getBoolean("sudaku_use_center_detection", false)
         useCenterDetection.setOnCheckedChangeListener(this)
+
+        ArrayAdapter.createFromResource(this, R.array.touch_zones, R.layout.support_simple_spinner_dropdown_item)
+            .also {
+                it.setDropDownViewResource(R.layout.support_simple_spinner_dropdown_item)
+                zonesSpinner.adapter = it
+            }
+        zonesSpinner.onItemSelectedListener = this
+        zonesSpinner.setSelection(prefsManager.getInt("sudaku_touch_zones_variant", 0))
     }
 
     override fun onStopTrackingTouch(seekBar: SeekBar?) {
@@ -62,6 +67,14 @@ class TestActivity : AppCompatActivity(), SeekBar.OnSeekBarChangeListener, OnChe
             R.id.extraTolerance -> prefsManager.edit().putBoolean("sudaku_extra_tolerance", isChecked).apply()
             R.id.useCenterDetection -> prefsManager.edit().putBoolean("sudaku_use_center_detection", isChecked).apply()
         }
+
+    }
+
+    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+        prefsManager.edit().putInt("sudaku_touch_zones_variant", position).apply()
+    }
+
+    override fun onNothingSelected(parent: AdapterView<*>?) {
 
     }
 
